@@ -1,6 +1,9 @@
 // packages and models that we'll need to create the Express.js API endpoints
 const router = require('express').Router();
-const { Post, User } = require('../../models');
+const { Post, User, Vote } = require('../../models');
+// connection
+const sequelize = require('../../config/connection');
+
 
 // create a route that will retrieve all posts in the database
 // get all users
@@ -10,7 +13,14 @@ router.get('/', (req, res) => {
     Post.findAll({
         // Query configuration
         // configure the findAll method by customizing the attributes property
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        // update the `.findAll()` method's attributes to look like this
+        attributes: [
+          'id',
+          'post_url',
+          'title',
+          'created_at',
+          [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+        ],
         // display the most recently added posts first.
         order: [['created_at', 'DESC']], 
         // JOIN to the user
@@ -34,7 +44,14 @@ router.get('/:id', (req, res) => {
       where: {
         id: req.params.id
       },
-      attributes: ['id', 'post_url', 'title', 'created_at'],
+      // update the `.findAll()` method's attributes to look like this
+      attributes: [
+        'id',
+        'post_url',
+        'title',
+        'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
       include: [
         {
           model: User,
@@ -42,17 +59,17 @@ router.get('/:id', (req, res) => {
         }
       ]
     })
-      .then(dbPostData => {
+    .then(dbPostData => {
         if (!dbPostData) {
-          res.status(404).json({ message: 'No post found with this id' });
-          return;
+            res.status(404).json({ message: 'No post found with this id' });
+            return;
         }
         res.json(dbPostData);
-      })
-      .catch(err => {
+    })
+    .catch(err => {
         console.log(err);
         res.status(500).json(err);
-      });
+    });
 });  
 
 // create a post
@@ -69,6 +86,18 @@ router.post('/', (req, res) => {
         res.status(500).json(err);
       });
 });
+
+// PUT /api/posts/upvote
+router.put('/upvote', (req, res) => {
+  // custom static method created in models/Post.js
+  Post.upvote(req.body, { Vote })
+    .then(updatedPostData => res.json(updatedPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 
 // Because we'll be updating an existing entry, the idea is to first retrieve the post instance by id, then alter the value of the title on this instance of a post
 router.put('/:id', (req, res) => {
