@@ -75,6 +75,10 @@ router.post('/', (req, res) => {
       res.json(dbUserData);
     });
   })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 // POST api/users/login
@@ -108,7 +112,19 @@ router.post('/login', (req, res) => {
       });
     });  
 });
-    
+
+// logout route /logout
+router.post('/logout', (req, res) => {
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
+});
+
 // PUT /api/users/1
 router.put('/:id', (req, res) => {
   // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
