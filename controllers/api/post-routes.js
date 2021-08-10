@@ -2,6 +2,7 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection');
 const { Post, User, Vote, Comment } = require('../../models');
+const withAuth = require('../utils/auth');
 
 // create a route that will retrieve all posts in the database
 // The created_at column is auto-generated at the time a post is created with the current date and time
@@ -82,7 +83,7 @@ router.get('/:id', (req, res) => {
 });  
 
 // create a post
-router.post('/', (req, res) => {
+router.post('/', withAuth, (req, res) => {
     // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
     Post.create({
       title: req.body.title,
@@ -97,7 +98,7 @@ router.post('/', (req, res) => {
 });
 
 // PUT /api/posts/upvote
-router.put('/upvote', (req, res) => {
+router.put('/upvote', withAuth, (req, res) => {
   // make sure the session exists first
   if (req.session) {
   // custom static method created in models/Post.js
@@ -113,7 +114,7 @@ router.put('/upvote', (req, res) => {
 
 
 // Because we'll be updating an existing entry, the idea is to first retrieve the post instance by id, then alter the value of the title on this instance of a post
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     Post.update(
       {
         title: req.body.title
@@ -138,7 +139,7 @@ router.put('/:id', (req, res) => {
 });
 
 // to delete an entry
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     Post.destroy({
       where: {
         id: req.params.id
