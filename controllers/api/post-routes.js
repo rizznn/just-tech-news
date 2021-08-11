@@ -2,7 +2,7 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection');
 const { Post, User, Vote, Comment } = require('../../models');
-const withAuth = require('../utils/auth');
+const withAuth = require('../../utils/auth');
 
 // create a route that will retrieve all posts in the database
 // The created_at column is auto-generated at the time a post is created with the current date and time
