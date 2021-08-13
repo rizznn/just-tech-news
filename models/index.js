@@ -12,7 +12,7 @@ User.hasMany(Post, {
 // reverse association - relationship of Post model to the User
 Post.belongsTo(User, {
     foreignKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 // associate User and Post to one another sowhen we query:
@@ -22,25 +22,25 @@ User.belongsToMany(Post, {
     through: Vote,
     as: 'voted_posts',
     foreignKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
   
 Post.belongsToMany(User, {
     through: Vote,
     as: 'voted_posts',
     foreignKey: 'post_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 // we'll connect User to Vote directly
 Vote.belongsTo(User, {
     foreignKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 Vote.belongsTo(Post, {
     foreignKey: 'post_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 User.hasMany(Vote, {
@@ -54,22 +54,21 @@ Post.hasMany(Vote, {
 // model associations for comment
 Comment.belongsTo(User, {
     foreignKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 Comment.belongsTo(Post, {
     foreignKey: 'post_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 User.hasMany(Comment, {
     foreignKey: 'user_id',
-    onDelete: 'SET NULL'
+    onDelete: 'CASCADE'
 });
 
 Post.hasMany(Comment, {
     foreignKey: 'post_id',
-    onDelete: 'SET NULL'
 });
 
 module.exports = { User, Post, Vote, Comment };
